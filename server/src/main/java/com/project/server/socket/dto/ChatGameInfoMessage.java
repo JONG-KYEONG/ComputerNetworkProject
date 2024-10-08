@@ -5,11 +5,11 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record ChatRoomInfoMessage (
+public record ChatGameInfoMessage(
     MessageType messageType,
     String content,
     String sender,
-    Long roomId,
-    RoomInfoDto roomInfoDto,
-    List<RoomUserDto> roomUserDtos
+    Long gameId,
+    GameInfoDto gameInfoDto,
+    List<GameUserDto> gameUserDtos
 ){}

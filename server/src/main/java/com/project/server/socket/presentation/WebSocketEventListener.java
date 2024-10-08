@@ -1,12 +1,10 @@
 package com.project.server.socket.presentation;
 
-import com.project.server.room.domain.Room;
-import com.project.server.room.domain.RoomUser;
-import com.project.server.room.service.RoomService;
-import com.project.server.socket.dto.ChatRoomInfoMessage;
+import com.project.server.game.service.GameService;
+import com.project.server.socket.dto.ChatGameInfoMessage;
 import com.project.server.socket.dto.MessageType;
-import com.project.server.socket.dto.RoomInfoDto;
-import com.project.server.socket.dto.RoomUserDto;
+import com.project.server.socket.dto.GameInfoDto;
+import com.project.server.socket.dto.GameUserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -28,7 +26,7 @@ import java.util.Objects;
 public class WebSocketEventListener {
 
     private final SimpMessageSendingOperations messagingTemplate;
-    private final RoomService roomService;
+    private final GameService gameService;
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
@@ -41,22 +39,22 @@ public class WebSocketEventListener {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String username = (String) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("username");
         Long userId = (Long) headerAccessor.getSessionAttributes().get("userId");
-        Long roomId = (Long) headerAccessor.getSessionAttributes().get("roomId");
-        String destination = "/topic/public/"+roomId;
+        Long gameId = (Long) headerAccessor.getSessionAttributes().get("gameId");
+        String destination = "/topic/public/"+gameId;
 
-        RoomInfoDto roomInfoDto = roomService.leaveRoom(roomId, userId);
-        List<RoomUserDto> roomUserDtos = roomService.getRoomUsers(roomId);
+        GameInfoDto gameInfoDto = gameService.leaveGame(gameId, userId);
+        List<GameUserDto> gameUserDtos = gameService.getGameUsers(gameId);
 
-        ChatRoomInfoMessage chatRoomInfoMessage = ChatRoomInfoMessage.builder()
+        ChatGameInfoMessage chatGameInfoMessage = ChatGameInfoMessage.builder()
                 .messageType(MessageType.LEAVE)
-                .roomId(roomId)
+                .gameId(gameId)
                 .content(username + " 님이 퇴장하셨습니다.")
                 .sender(username)
-                .roomInfoDto(roomInfoDto)
-                .roomUserDtos(roomUserDtos)
+                .gameInfoDto(gameInfoDto)
+                .gameUserDtos(gameUserDtos)
                 .build();
 
-        messagingTemplate.convertAndSend(destination, chatRoomInfoMessage);
+        messagingTemplate.convertAndSend(destination, chatGameInfoMessage);
     }
 
 }

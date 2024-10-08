@@ -1,6 +1,6 @@
 package com.project.server.socket.presentation;
 
-import com.project.server.room.service.RoomService;
+import com.project.server.game.service.GameService;
 import com.project.server.socket.application.ChatService;
 import com.project.server.socket.dto.*;
 import lombok.AllArgsConstructor;
@@ -16,39 +16,60 @@ import java.util.List;
 @RestController
 public class ChatController {
     private final SimpMessageSendingOperations messagingTemplate;
-//    private final ChatService chatService;
-    private final RoomService roomService;
+    private final ChatService chatService;
+    private final GameService gameService;
 
     @MessageMapping("/chat.sendMessage")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
-        String destination = "/topic/public/"+chatMessage.getRoomId();
+        String destination = "/topic/public/"+chatMessage.gameId();
         messagingTemplate.convertAndSend(destination, chatMessage);
         return chatMessage;
     }
 
-
     @MessageMapping("/chat.addUser")
-    public ChatRoomInfoMessage addUser(@Payload ChatMessage chatMessage,
+    public ChatGameInfoMessage addUser(@Payload ChatMessage chatMessage,
                                        SimpMessageHeaderAccessor headerAccessor) {
-        String sender = chatMessage.getSender();
-        headerAccessor.getSessionAttributes().put("userId", chatMessage.getSenderId());
+        String sender = chatMessage.sender();
+        headerAccessor.getSessionAttributes().put("userId", chatMessage.senderId());
         headerAccessor.getSessionAttributes().put("username", sender);
-        headerAccessor.getSessionAttributes().put("roomId", chatMessage.getRoomId());
+        headerAccessor.getSessionAttributes().put("gameId", chatMessage.gameId());
 
-        RoomInfoDto roomInfoDto = roomService.enterRoom(chatMessage.getRoomId(), chatMessage.getSender());
-        List<RoomUserDto> roomUserDtos = roomService.getRoomUsers(chatMessage.roomId());
+        GameInfoDto gameInfoDto = gameService.enterGame(chatMessage.gameId(), chatMessage.sender());
+        List<GameUserDto> gameUserDtos = gameService.getGameUsers(chatMessage.gameId());
 
-        ChatRoomInfoMessage chatRoomInfoMessage = ChatRoomInfoMessage.builder()
+        ChatGameInfoMessage chatGameInfoMessage = ChatGameInfoMessage.builder()
                 .messageType(MessageType.JOIN)
-                .roomId(chatMessage.roomId())
+                .gameId(chatMessage.gameId())
                 .content(sender + " 님이 입장하셨습니다.")
                 .sender(sender)
-                .roomInfoDto(roomInfoDto)
-                .roomUserDtos(roomUserDtos)
+                .gameInfoDto(gameInfoDto)
+                .gameUserDtos(gameUserDtos)
                 .build();
 
-        messagingTemplate.convertAndSend("/topic/public/" + chatMessage.getRoomId(), chatRoomInfoMessage);
+        messagingTemplate.convertAndSend("/topic/public/" + chatMessage.gameId(), chatGameInfoMessage);
 
-        return chatRoomInfoMessage;
+        return chatGameInfoMessage;
+    }
+
+    @MessageMapping("/chat.startGame")
+    public ChatGameInfoMessage startGame(@Payload ChatMessage chatMessage,
+                                         SimpMessageHeaderAccessor headerAccessor) {
+        String sender = chatMessage.sender();
+
+        GameInfoDto gameInfoDto = gameService.enterGame(chatMessage.gameId(), chatMessage.sender());
+        List<GameUserDto> gameUserDtos = gameService.getGameUsers(chatMessage.gameId());
+
+        ChatGameInfoMessage chatgameInfoMessage = ChatGameInfoMessage.builder()
+                .messageType(MessageType.START)
+                .gameId(chatMessage.gameId())
+                .content("*** 게임 시작! *** \n 사진을 보고 누구 인지 맞춰 보세요! ")
+                .sender(sender)
+                .gameInfoDto(gameInfoDto)
+                .gameUserDtos(gameUserDtos)
+                .build();
+
+        messagingTemplate.convertAndSend("/topic/public/" + chatMessage.gameId(), chatgameInfoMessage);
+
+        return chatgameInfoMessage;
     }
 }

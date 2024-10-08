@@ -3,8 +3,8 @@ package com.project.server.socket.dto;
 import lombok.Builder;
 
 @Builder
-public record RoomInfoDto(
-        Long roomId,
+public record GameInfoDto(
+        Long gameId,
         Integer userCount
 ) {
 }

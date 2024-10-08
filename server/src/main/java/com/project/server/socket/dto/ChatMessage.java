@@ -1,13 +1,12 @@
 package com.project.server.socket.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
 
-@Getter
+@Builder
 public record ChatMessage (
     MessageType messageType,
     String content,
     Long senderId,
     String sender,
-    Long roomId
+    Long gameId
 ){}

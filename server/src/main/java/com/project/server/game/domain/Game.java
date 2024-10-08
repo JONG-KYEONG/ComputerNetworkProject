@@ -1,4 +1,4 @@
-package com.project.server.room.domain;
+package com.project.server.game.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,8 +11,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "room")
-public class Room {
+@Table(name = "game")
+public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,9 +20,6 @@ public class Room {
     private boolean gameStatus;
     @NotNull
     private int userCount;
-
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<RoomUser> roomUsers;
 
     public void updateUser(boolean isAdd){
         if(isAdd)
