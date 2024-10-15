@@ -5,6 +5,7 @@ import lombok.Builder;
 @Builder
 public record GameInfoDto(
         Long gameId,
-        Integer userCount
+        Integer userCount,
+        String gameAnswer
 ) {
 }

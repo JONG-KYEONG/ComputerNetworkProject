@@ -15,4 +15,5 @@ public class GameAnswer {
     private Long id;
     private Long gameId;
     private String answerName;
+    private String answerImage;
 }

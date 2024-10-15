@@ -1,8 +1,12 @@
 package com.project.server.game.service;
 
+import com.project.server.answer.domain.Answer;
+import com.project.server.answer.repository.AnswerRepository;
 import com.project.server.exception.BadRequestException;
 import com.project.server.game.domain.Game;
+import com.project.server.game.domain.GameAnswer;
 import com.project.server.game.domain.GameUser;
+import com.project.server.game.repository.GameAnswerRepository;
 import com.project.server.game.repository.GameRepository;
 import com.project.server.game.repository.GameUserRepository;
 import com.project.server.socket.dto.GameInfoDto;
@@ -13,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
 @Service
 @AllArgsConstructor
@@ -20,8 +26,10 @@ import java.util.List;
 public class GameService {
     private final GameRepository gameRepository;
     private final GameUserRepository gameUserRepository;
+    private final GameAnswerRepository gameAnswerRepository;
+    private final AnswerRepository answerRepository;
 
-    public GameInfoDto enterGame(Long gameId, String username){
+    public GameInfoDto enterGame(Long gameId, String username){  // 유저가 방에 입장
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다"));
 
@@ -44,7 +52,7 @@ public class GameService {
                 .build();
     }
 
-    public GameInfoDto leaveGame(Long gameId, Long userId){
+    public GameInfoDto leaveGame(Long gameId, Long userId){  // 유저가 방을 떠남
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다"));
 
@@ -71,7 +79,7 @@ public class GameService {
                 .build();
     }
 
-    public List<GameUserDto> getGameUsers(long gameId){
+    public List<GameUserDto> getGameUsers(long gameId){  // 해당 게임에 있는 유저 리스트 가져오기
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다"));
 
@@ -88,5 +96,47 @@ public class GameService {
         }
 
         return gameUserDtos;
+    }
+
+    public void gameStart(Long gameId){   // 게임 시작
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다."));
+        game.setGameStatus(true);
+    }
+
+    public void gameEnd(Long gameId){   // 게임 종료
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다."));
+        game.setGameStatus(true);
+    }
+
+    public Boolean isCorrect(String answer, Long gameId){
+        GameAnswer gameAnswer = gameAnswerRepository.findByGameId(gameId)
+                .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다."));
+        if(answer.contains(gameAnswer.getAnswerName())){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    public GameInfoDto changeTurn(Long gameId){  // 새로운 인물 저장하고 가져오기
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다."));
+        Answer answer = answerRepository.findOneWithRandom()
+                .orElseThrow(() -> new BadRequestException("정답 목록을 가져오는데에 실패하였습니다."));
+
+        GameAnswer gameAnswer = GameAnswer.builder()
+                .gameId(gameId)
+                .answerName(answer.getName())
+                .answerImage(answer.getImage())
+                .build();
+
+        return GameInfoDto.builder()
+                .userCount(game.getUserCount())
+                .gameId(gameId)
+                .gameAnswer(gameAnswer.getAnswerName())
+                .build();
     }
 }

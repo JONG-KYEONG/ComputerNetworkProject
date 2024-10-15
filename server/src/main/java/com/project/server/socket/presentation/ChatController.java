@@ -20,7 +20,7 @@ public class ChatController {
     private final GameService gameService;
 
     @MessageMapping("/chat.sendMessage")
-    public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
+    public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {   // 채팅
         String destination = "/topic/public/"+chatMessage.gameId();
         messagingTemplate.convertAndSend(destination, chatMessage);
         return chatMessage;
@@ -28,7 +28,7 @@ public class ChatController {
 
     @MessageMapping("/chat.addUser")
     public ChatGameInfoMessage addUser(@Payload ChatMessage chatMessage,
-                                       SimpMessageHeaderAccessor headerAccessor) {
+                                       SimpMessageHeaderAccessor headerAccessor) {   // 게임 입장
         String sender = chatMessage.sender();
         headerAccessor.getSessionAttributes().put("userId", chatMessage.senderId());
         headerAccessor.getSessionAttributes().put("username", sender);
@@ -52,11 +52,11 @@ public class ChatController {
     }
 
     @MessageMapping("/chat.startGame")
-    public ChatGameInfoMessage startGame(@Payload ChatMessage chatMessage,
-                                         SimpMessageHeaderAccessor headerAccessor) {
+    public ChatGameInfoMessage startGame(@Payload ChatMessage chatMessage) {  // 게임 시작
         String sender = chatMessage.sender();
 
-        GameInfoDto gameInfoDto = gameService.enterGame(chatMessage.gameId(), chatMessage.sender());
+        gameService.gameStart(chatMessage.gameId());
+        GameInfoDto gameInfoDto = gameService.changeTurn(chatMessage.gameId());
         List<GameUserDto> gameUserDtos = gameService.getGameUsers(chatMessage.gameId());
 
         ChatGameInfoMessage chatgameInfoMessage = ChatGameInfoMessage.builder()
@@ -68,6 +68,53 @@ public class ChatController {
                 .gameUserDtos(gameUserDtos)
                 .build();
 
+        messagingTemplate.convertAndSend("/topic/public/" + chatMessage.gameId(), chatgameInfoMessage);
+
+        return chatgameInfoMessage;
+    }
+
+    @MessageMapping("/chat.correctAnswer")
+    public ChatGameInfoMessage correctAnswer(@Payload ChatMessage chatMessage) {  // 정답 맞추기
+        String sender = chatMessage.sender();
+
+        if(gameService.isCorrect(chatMessage.content(), chatMessage.gameId())){  // 정답이라면 추가 정
+            GameInfoDto gameInfoDto = gameService.changeTurn(chatMessage.gameId());
+            List<GameUserDto> gameUserDtos = gameService.getGameUsers(chatMessage.gameId());
+
+            ChatGameInfoMessage chatgameInfoMessage = ChatGameInfoMessage.builder()
+                    .messageType(MessageType.START)
+                    .gameId(chatMessage.gameId())
+                    .content("*** 게임 시작! *** \n 사진을 보고 누구 인지 맞춰 보세요! ")
+                    .sender(sender)
+                    .gameInfoDto(gameInfoDto)
+                    .gameUserDtos(gameUserDtos)
+                    .build();
+        }
+        else{  // 정답이 아니라면 그냥 채팅으로
+            String destination = "/topic/public/"+chatMessage.gameId();
+            ChatMessage newChatMessage = ChatMessage.builder()
+                    .messageType(MessageType.CHAT)
+                    .content(chatMessage.content())
+                    .gameId(chatMessage.gameId())
+                    .sender(sender)
+                    .senderId(chatMessage.senderId())
+                    .build();
+            messagingTemplate.convertAndSend(destination, newChatMessage);
+        }
+        GameInfoDto gameInfoDto = gameService.changeTurn(chatMessage.gameId());
+        List<GameUserDto> gameUserDtos = gameService.getGameUsers(chatMessage.gameId());
+
+        ChatGameInfoMessage chatgameInfoMessage = ChatGameInfoMessage.builder()
+                .messageType(MessageType.START)
+                .gameId(chatMessage.gameId())
+                .content("*** 게임 시작! *** \n 사진을 보고 누구 인지 맞춰 보세요! ")
+                .sender(sender)
+                .gameInfoDto(gameInfoDto)
+                .gameUserDtos(gameUserDtos)
+                .build();
+
+        String destination = "/topic/public/"+chatMessage.gameId();
+        messagingTemplate.convertAndSend(destination, chatMessage);
         messagingTemplate.convertAndSend("/topic/public/" + chatMessage.gameId(), chatgameInfoMessage);
 
         return chatgameInfoMessage;
