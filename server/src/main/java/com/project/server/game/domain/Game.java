@@ -19,6 +19,7 @@ public class Game {
     private Long id;
     @NotNull
     private boolean gameStatus;
+    private int nowTurn;
     @NotNull
     private int userCount;
 

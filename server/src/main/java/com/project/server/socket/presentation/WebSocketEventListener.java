@@ -43,18 +43,21 @@ public class WebSocketEventListener {
         String destination = "/topic/public/"+gameId;
 
         GameInfoDto gameInfoDto = gameService.leaveGame(gameId, userId);
-        List<GameUserDto> gameUserDtos = gameService.getGameUsers(gameId);
 
-        ChatGameInfoMessage chatGameInfoMessage = ChatGameInfoMessage.builder()
-                .messageType(MessageType.LEAVE)
-                .gameId(gameId)
-                .content(username + " 님이 퇴장하셨습니다.")
-                .sender(username)
-                .gameInfoDto(gameInfoDto)
-                .gameUserDtos(gameUserDtos)
-                .build();
+        if(gameInfoDto!=null){
+            List<GameUserDto> gameUserDtos = gameService.getGameUsers(gameId);
 
-        messagingTemplate.convertAndSend(destination, chatGameInfoMessage);
+            ChatGameInfoMessage chatGameInfoMessage = ChatGameInfoMessage.builder()
+                    .messageType(MessageType.LEAVE)
+                    .gameId(gameId)
+                    .content(username + " 님이 퇴장하셨습니다.")
+                    .sender(username)
+                    .gameInfoDto(gameInfoDto)
+                    .gameUserDtos(gameUserDtos)
+                    .build();
+
+            messagingTemplate.convertAndSend(destination, chatGameInfoMessage);
+        }
     }
 
 }

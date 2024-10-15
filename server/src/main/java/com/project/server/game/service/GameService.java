@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.Random;
 
 @Service
-@AllArgsConstructor
 @Transactional
 public class GameService {
     private final GameRepository gameRepository;
@@ -29,22 +28,40 @@ public class GameService {
     private final GameAnswerRepository gameAnswerRepository;
     private final AnswerRepository answerRepository;
 
-    public GameInfoDto enterGame(Long gameId, String username){  // 유저가 방에 입장
+    public GameService(GameRepository gameRepository,
+                         GameUserRepository gameUserRepository,
+                         GameAnswerRepository gameAnswerRepository,
+                         AnswerRepository answerRepository) {
+        this.gameRepository = gameRepository;
+        this.gameUserRepository = gameUserRepository;
+        this.gameAnswerRepository = gameAnswerRepository;
+        this.answerRepository = answerRepository;
+    }
+
+    private final int GAME_MAX_USER = 4;
+
+    public Long enterGame(Long gameId, String username){  // 유저가 방에 입장
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다"));
 
-        if(game.getUserCount() < 4){
+        if(game.getUserCount() < GAME_MAX_USER){
             GameUser gameUser = GameUser.builder()
                     .game(game)
                     .isCaptain(game.getUserCount()==0)
                     .gameNickname(username)
                     .build();
-            gameUserRepository.save(gameUser);
+            Long userId = gameUserRepository.save(gameUser).getId();
             game.updateUser(true);
+            return userId;
         }
         else{
             throw new BadRequestException("방에 입장 불가");
         }
+    }
+
+    public GameInfoDto getGameInfoDto(Long gameId){
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다"));
 
         return GameInfoDto.builder()
                 .userCount(game.getUserCount())
@@ -102,12 +119,14 @@ public class GameService {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다."));
         game.setGameStatus(true);
+        game.setNowTurn(1);
     }
 
     public void gameEnd(Long gameId){   // 게임 종료
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다."));
-        game.setGameStatus(true);
+        game.setGameStatus(false);
+        game.setNowTurn(0);
     }
 
     public Boolean isCorrect(String answer, Long gameId){
@@ -138,5 +157,25 @@ public class GameService {
                 .gameId(gameId)
                 .gameAnswerImage(gameAnswer.getAnswerImage())
                 .build();
+    }
+
+    public Long createGame() {
+        Game game = Game.builder()
+                .gameStatus(false)
+                .nowTurn(0)
+                .userCount(0)
+                .build();
+
+        return gameRepository.save(game).getId();
+    }
+
+    public Long getGame() {
+        Optional<Game> game = gameRepository.findOneByRandom(GAME_MAX_USER);
+        if(game.isEmpty()){
+            return -1L;
+        }
+        else{
+            return game.get().getId();
+        }
     }
 }

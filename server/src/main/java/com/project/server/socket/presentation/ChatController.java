@@ -8,6 +8,9 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -29,13 +32,14 @@ public class ChatController {
     @MessageMapping("/chat.addUser")
     public ChatGameInfoMessage addUser(@Payload ChatMessage chatMessage,
                                        SimpMessageHeaderAccessor headerAccessor) {   // 게임 입장
+        Long userId = gameService.enterGame(chatMessage.gameId(), chatMessage.sender());
+        GameInfoDto gameInfoDto = gameService.getGameInfoDto(chatMessage.gameId());
+        List<GameUserDto> gameUserDtos = gameService.getGameUsers(chatMessage.gameId());
+
         String sender = chatMessage.sender();
-        headerAccessor.getSessionAttributes().put("userId", chatMessage.senderId());
+        headerAccessor.getSessionAttributes().put("userId", userId);
         headerAccessor.getSessionAttributes().put("username", sender);
         headerAccessor.getSessionAttributes().put("gameId", chatMessage.gameId());
-
-        GameInfoDto gameInfoDto = gameService.enterGame(chatMessage.gameId(), chatMessage.sender());
-        List<GameUserDto> gameUserDtos = gameService.getGameUsers(chatMessage.gameId());
 
         ChatGameInfoMessage chatGameInfoMessage = ChatGameInfoMessage.builder()
                 .messageType(MessageType.JOIN)
@@ -74,7 +78,7 @@ public class ChatController {
     }
 
     @MessageMapping("/chat.correctAnswer")
-    public ChatGameInfoMessage correctAnswer(@Payload ChatMessage chatMessage) {  // 정답 맞추기
+    public ChatGameInfoMessage correctAnswer(@Payload ChatMessage chatMessage) {  // 정답 맞추기 TODO: 게임 종료 로직 만들어야함.
         String sender = chatMessage.sender();
         String destination = "/topic/public/"+chatMessage.gameId();
 
@@ -83,9 +87,9 @@ public class ChatController {
             List<GameUserDto> gameUserDtos = gameService.getGameUsers(chatMessage.gameId());
 
             ChatGameInfoMessage chatgameInfoMessage = ChatGameInfoMessage.builder()
-                    .messageType(MessageType.START)
+                    .messageType(MessageType.ANSWER)
                     .gameId(chatMessage.gameId())
-                    .content("*** 게임 시작! *** \n 사진을 보고 누구 인지 맞춰 보세요! ")
+                    .content("*** "+ sender+"님 정답! *** \n")
                     .sender(sender)
                     .gameInfoDto(gameInfoDto)
                     .gameUserDtos(gameUserDtos)
@@ -106,5 +110,15 @@ public class ChatController {
         }
 
         return null;    // TODO: 리턴 값 결정
+    }
+
+    @PostMapping("/api/create/game")
+    public Long createGame(){
+        return gameService.createGame();
+    }
+
+    @GetMapping("/api/game")
+    public Long getGame(){
+        return gameService.getGame();
     }
 }
