@@ -136,7 +136,7 @@ public class GameService {
         return GameInfoDto.builder()
                 .userCount(game.getUserCount())
                 .gameId(gameId)
-                .gameAnswer(gameAnswer.getAnswerName())
+                .gameAnswerImage(gameAnswer.getAnswerImage())
                 .build();
     }
 }

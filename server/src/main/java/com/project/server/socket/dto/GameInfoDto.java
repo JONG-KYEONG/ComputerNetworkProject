@@ -6,6 +6,6 @@ import lombok.Builder;
 public record GameInfoDto(
         Long gameId,
         Integer userCount,
-        String gameAnswer
+        String gameAnswerImage
 ) {
 }

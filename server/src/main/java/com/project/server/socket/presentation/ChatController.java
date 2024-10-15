@@ -76,6 +76,7 @@ public class ChatController {
     @MessageMapping("/chat.correctAnswer")
     public ChatGameInfoMessage correctAnswer(@Payload ChatMessage chatMessage) {  // 정답 맞추기
         String sender = chatMessage.sender();
+        String destination = "/topic/public/"+chatMessage.gameId();
 
         if(gameService.isCorrect(chatMessage.content(), chatMessage.gameId())){  // 정답이라면 추가 정
             GameInfoDto gameInfoDto = gameService.changeTurn(chatMessage.gameId());
@@ -89,9 +90,10 @@ public class ChatController {
                     .gameInfoDto(gameInfoDto)
                     .gameUserDtos(gameUserDtos)
                     .build();
+
+            messagingTemplate.convertAndSend(destination, chatgameInfoMessage);
         }
         else{  // 정답이 아니라면 그냥 채팅으로
-            String destination = "/topic/public/"+chatMessage.gameId();
             ChatMessage newChatMessage = ChatMessage.builder()
                     .messageType(MessageType.CHAT)
                     .content(chatMessage.content())
@@ -99,24 +101,10 @@ public class ChatController {
                     .sender(sender)
                     .senderId(chatMessage.senderId())
                     .build();
+
             messagingTemplate.convertAndSend(destination, newChatMessage);
         }
-        GameInfoDto gameInfoDto = gameService.changeTurn(chatMessage.gameId());
-        List<GameUserDto> gameUserDtos = gameService.getGameUsers(chatMessage.gameId());
 
-        ChatGameInfoMessage chatgameInfoMessage = ChatGameInfoMessage.builder()
-                .messageType(MessageType.START)
-                .gameId(chatMessage.gameId())
-                .content("*** 게임 시작! *** \n 사진을 보고 누구 인지 맞춰 보세요! ")
-                .sender(sender)
-                .gameInfoDto(gameInfoDto)
-                .gameUserDtos(gameUserDtos)
-                .build();
-
-        String destination = "/topic/public/"+chatMessage.gameId();
-        messagingTemplate.convertAndSend(destination, chatMessage);
-        messagingTemplate.convertAndSend("/topic/public/" + chatMessage.gameId(), chatgameInfoMessage);
-
-        return chatgameInfoMessage;
+        return null;    // TODO: 리턴 값 결정
     }
 }
