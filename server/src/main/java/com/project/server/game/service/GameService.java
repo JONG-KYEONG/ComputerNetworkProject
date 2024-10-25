@@ -59,7 +59,7 @@ public class GameService {
         }
     }
 
-    public GameInfoDto getGameInfoDto(Long gameId){
+    public GameInfoDto getGameInfoDto(Long gameId){ // 게임 방 정보 가져오기
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다"));
 
@@ -129,7 +129,7 @@ public class GameService {
         game.setNowTurn(0);
     }
 
-    public Boolean isCorrect(String answer, Long gameId){
+    public Boolean isCorrect(String answer, Long gameId){ // 정답인지 아닌지 판단하기
         GameAnswer gameAnswer = gameAnswerRepository.findByGameId(gameId)
                 .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다."));
         if(answer.contains(gameAnswer.getAnswerName())){
@@ -159,7 +159,7 @@ public class GameService {
                 .build();
     }
 
-    public Long createGame() {
+    public Long createGame() { // 게임 생성
         Game game = Game.builder()
                 .gameStatus(false)
                 .nowTurn(0)
@@ -169,7 +169,7 @@ public class GameService {
         return gameRepository.save(game).getId();
     }
 
-    public Long getGame() {
+    public Long getGame() { // 게임방 가져오기
         Optional<Game> game = gameRepository.findOneByRandom(GAME_MAX_USER);
         if(game.isEmpty()){
             return -1L;
