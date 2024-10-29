@@ -122,7 +122,7 @@ public class ChatController {
             messagingTemplate.convertAndSend(destination, newChatMessage);
         }
 
-        return null;    // TODO: 리턴 값 결정
+        return null;
     }
 
     @PostMapping("/api/create/game")
