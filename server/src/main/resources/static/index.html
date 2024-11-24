@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <title>Spring Boot WebSocket Chat Application | CalliCoder</title>
+    <link rel="stylesheet" href="/css/main.css" />
+</head>
+<body>
+<noscript>
+    <h2>Sorry! Your browser doesn't support Javascript</h2>
+</noscript>
+
+<div id="chatroom-page">
+    <div class="chatroom-container">
+        <!-- 닉네임 입력 폼 추가 -->
+        <form id="usernameForm" name="usernameForm" class="username-form">
+            <input type="text" id="name" placeholder="닉네임 입력" autocomplete="off" class="form-control" />
+            <button type="submit" class="accent username-submit">확인</button>
+        </form>
+
+        <!-- 기존 버튼 -->
+        <button type="button" id="enter-game" class="accent room-action">입장</button>
+        <button type="button" id="create-game" class="accent room-action">게임 생성</button>
+    </div>
+</div>
+
+<div id="chat-page" class="hidden">
+    <div class="chat-container">
+        <div class="chat-header">
+            <button id="exit-chat-room" class="exit-chat-room">나가기</button>
+            <h2>인물 퀴즈</h2>
+        </div>
+        <div class="image">
+        </div>
+
+        <ul id="messageArea">
+
+        </ul>
+        <form id="messageForm" name="messageForm" nameForm="messageForm">
+            <div class="form-group">
+                <div class="input-group clearfix">
+                    <input type="text" id="message" placeholder="Type a message..." autocomplete="off" class="form-control"/>
+                    <button type="submit" class="primary">전송</button>
+                    <button type="button" id="startButton" class="start-button">시작</button> <!-- Start 버튼 추가 -->
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

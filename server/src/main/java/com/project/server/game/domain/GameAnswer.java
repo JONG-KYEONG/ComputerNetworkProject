@@ -15,5 +15,6 @@ public class GameAnswer {
     private Long id;
     private Long gameId;
     private String answerName;
+    @Column(length = 10000)
     private String answerImage;
 }

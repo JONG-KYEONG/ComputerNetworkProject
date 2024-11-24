@@ -66,7 +66,7 @@ public class ChatController {
         ChatGameInfoMessage chatgameInfoMessage = ChatGameInfoMessage.builder()
                 .messageType(MessageType.START)
                 .gameId(chatMessage.gameId())
-                .content("*** 게임 시작! *** \n 사진을 보고 누구 인지 맞춰 보세요! ")
+                .content("*** 게임 시작! 사진을 보고 누구 인지 맞춰 보세요! ***")
                 .sender(sender)
                 .gameInfoDto(gameInfoDto)
                 .gameUserDtos(gameUserDtos)
@@ -83,13 +83,14 @@ public class ChatController {
         String destination = "/topic/public/"+chatMessage.gameId();
 
         if(gameService.isCorrect(chatMessage.content(), chatMessage.gameId(), chatMessage.senderId())){  // 정답이라면 추가 정
+            String answer = gameService.getAnswer(chatMessage.gameId());
             GameInfoDto gameInfoDto = gameService.changeTurn(chatMessage.gameId());
             List<GameUserDto> gameUserDtos = gameService.getGameUsers(chatMessage.gameId());
 
             ChatGameInfoMessage chatgameInfoMessage = ChatGameInfoMessage.builder()
                     .messageType(MessageType.ANSWER)
                     .gameId(chatMessage.gameId())
-                    .content("*** "+ sender+"님 정답! *** \n")
+                    .content(sender+"님 ** "+ answer +" ** 정답!")
                     .sender(sender)
                     .gameInfoDto(gameInfoDto)
                     .gameUserDtos(gameUserDtos)
@@ -98,10 +99,11 @@ public class ChatController {
             messagingTemplate.convertAndSend(destination, chatgameInfoMessage);
 
             if(gameService.gameEnd(chatMessage.gameId())){
+                String result = gameService.getResult(chatMessage.gameId());
                 ChatGameInfoMessage chatEndMessage = ChatGameInfoMessage.builder()
                         .messageType(MessageType.END)
                         .gameId(chatMessage.gameId())
-                        .content("*** 게임이 종료 되었습니다! *** \n")
+                        .content("*** 게임이 종료 되었습니다! *** \n" + result)
                         .sender(sender)
                         .gameInfoDto(gameInfoDto)
                         .gameUserDtos(gameUserDtos)

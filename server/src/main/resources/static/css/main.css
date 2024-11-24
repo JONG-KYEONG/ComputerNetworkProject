@@ -1,0 +1,203 @@
+#chatroom-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.chatroom-container {
+    display: flex;
+    flex-direction: column; /* 세로 배치 */
+    align-items: center;
+    gap: 20px; /* 요소 간 간격 */
+}
+
+.room-action {
+    width: 150px; /* 버튼 크기 고정 */
+    height: 60px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.room-action:hover {
+    background-color: #0056b3;
+}
+
+.username-form {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 입력창과 버튼 간격 */
+    justify-content: center;
+}
+
+.form-control {
+    width: 250px; /* 입력창 넓이 */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+}
+
+.username-submit {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.username-submit:hover {
+    background-color: #0056b3;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#chat-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 95vh;
+    padding: 20px;
+    background-color: #f8f9fa; /* 밝은 배경 색상 */
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 15px;  /* 패딩을 줄여서 두께를 얇게 함 */
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;  /* 폰트 크기 줄임 */
+    font-weight: normal;  /* 폰트 굵기 줄임 */
+}
+
+
+.exit-chat-room {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.exit-chat-room:hover {
+    color: #d4d4d4;
+}
+
+.connecting {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #6c757d;
+    margin: 20px 0;
+}
+
+#messageArea {
+    flex: 1; /* 메시지 영역이 남은 공간을 채우도록 */
+    padding: 20px;
+    list-style: none;
+    overflow-y: auto;
+    margin: 0;
+}
+
+#messageArea li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #e9ecef;
+    font-size: 14px;
+}
+
+#messageArea li:nth-child(odd) {
+    background-color: #f1f3f5;
+}
+
+#messageForm {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+.input-group {
+    display: flex;
+    flex: 1;
+    gap: 10px; /* 입력창과 버튼 간격 */
+}
+
+#message {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#message:focus {
+    border-color: #007bff;
+}
+
+button.primary {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button.primary:hover {
+    background-color: #0056b3;
+}
+
+.start-button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #28a745; /* Green color for Start button */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: 10px; /* 간격을 주기 위해 왼쪽 여백 추가 */
+}
+
+.start-button:hover {
+    background-color: #218838; /* Hover 시 색상 변경 */
+}
+

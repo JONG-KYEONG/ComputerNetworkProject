@@ -16,6 +16,6 @@ public class Answer {
     private Long id;
     @NotNull
     private String name;
-    @NotNull
+    @Column(length = 10000, nullable = false)
     private String image;
 }

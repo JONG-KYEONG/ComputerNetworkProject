@@ -12,5 +12,8 @@ import java.util.Optional;
 public interface GameUserRepository extends JpaRepository<GameUser, Long> {
     List<GameUser> findAllByGame(Game game);
 
+
+    List<GameUser> findAllByGameOrderByGameScoreDesc(Game game);
+
     Optional<GameUser> findFirstByGame(Game game);
 }

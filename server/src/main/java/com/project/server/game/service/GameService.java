@@ -27,7 +27,7 @@ public class GameService {
     private final GameUserRepository gameUserRepository;
     private final GameAnswerRepository gameAnswerRepository;
     private final AnswerRepository answerRepository;
-    private static final int GAME_END_TURN = 7;
+    private static final int GAME_END_TURN = 9;
 
     public GameService(GameRepository gameRepository,
                        GameUserRepository gameUserRepository,
@@ -57,6 +57,13 @@ public class GameService {
         } else {
             throw new BadRequestException("방에 입장 불가");
         }
+    }
+
+    public String getAnswer(Long gameId) {
+        GameAnswer gameAnswer = gameAnswerRepository.findByGameId(gameId)
+                .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다."));
+
+        return gameAnswer.getAnswerName();
     }
 
     public GameInfoDto getGameInfoDto(Long gameId) { // 게임 방 정보 가져오기
@@ -125,13 +132,32 @@ public class GameService {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다."));
         if (game.getNowTurn() >= GAME_END_TURN) {
-            game.setGameStatus(false);
-            game.setNowTurn(0);
             return true;
         } else {
             return false;
         }
+    }
 
+    public String getResult(Long gameId){
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다."));
+
+        game.setGameStatus(false);
+        game.setNowTurn(0);
+
+        List<GameUser> gameUsers = gameUserRepository.findAllByGameOrderByGameScoreDesc(game);
+
+        String result = "";
+
+        for(GameUser gameUser : gameUsers){
+            result += "  " + gameUser.getGameNickname() + "님 " + gameUser.getGameScore() + "점 \n";
+        }
+
+        for(GameUser gameUser : gameUsers){
+            gameUser.setGameScore(0);
+        }
+
+        return result;
     }
 
     public Boolean isCorrect(String answer, Long gameId, Long userId) { // 정답인지 아닌지 판단하기
@@ -155,11 +181,21 @@ public class GameService {
         Answer answer = answerRepository.findOneWithRandom()
                 .orElseThrow(() -> new BadRequestException("정답 목록을 가져오는데에 실패하였습니다."));
 
+        Optional<GameAnswer> optionalGameAnswer = gameAnswerRepository.findByGameId(gameId);
+
+        if(optionalGameAnswer.isPresent()){
+            gameAnswerRepository.delete(optionalGameAnswer.get());
+        }
+
+        game.setNowTurn(game.getNowTurn() + 1);
+
         GameAnswer gameAnswer = GameAnswer.builder()
                 .gameId(gameId)
                 .answerName(answer.getName())
                 .answerImage(answer.getImage())
                 .build();
+
+        gameAnswerRepository.save(gameAnswer);
 
         return GameInfoDto.builder()
                 .userCount(game.getUserCount())
