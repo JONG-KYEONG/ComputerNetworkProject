@@ -12,13 +12,11 @@ import com.project.server.game.repository.GameUserRepository;
 import com.project.server.socket.dto.GameInfoDto;
 import com.project.server.socket.dto.GameUserDto;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 @Transactional
@@ -59,7 +57,7 @@ public class GameService {
         }
     }
 
-    public String getAnswer(Long gameId) {
+    public String getAnswer(Long gameId) {  // 정답어 가져오기
         GameAnswer gameAnswer = gameAnswerRepository.findByGameId(gameId)
                 .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다."));
 
@@ -138,7 +136,7 @@ public class GameService {
         }
     }
 
-    public String getResult(Long gameId){
+    public String getResult(Long gameId){ // 게임 결과 가져오기
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new BadRequestException("방을 찾을 수 없습니다."));
 

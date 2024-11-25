@@ -1,5 +1,3 @@
-// 'use strict';
-
 
 var chatRoomPage = document.querySelector('#chatroom-page');
 var chatPage = document.querySelector('#chat-page');
@@ -19,8 +17,7 @@ var colors = [
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
 ];
 
-function setPlaceholderOnLoad() {
-    // const savedUsername = localStorage.getItem("username");
+function setPlaceholderOnLoad() { // 첫 페이지 로드 시 설정
     const nameInput = document.querySelector('#name'); // <input> 요소 선택
 
     // localStorage에 저장된 값 확인 및 기본값 설정
@@ -36,10 +33,7 @@ function setPlaceholderOnLoad() {
 document.addEventListener("DOMContentLoaded", setPlaceholderOnLoad, true);
 
 
-async function enterGame(event) {
-    // chatRoomPage.classList.add('hidden');
-    // usernamePage.classList.remove('hidden');
-
+async function enterGame(event) {  // 게임 입장
     var url = "http://localhost:8080/api/game";
     await fetch(url)
         .then(response => {
@@ -56,7 +50,7 @@ async function enterGame(event) {
     connect();
 }
 
-async function createGame(event) {
+async function createGame(event) {  // 게임 생성
     var url = "http://localhost:8080/api/create/game"
     await fetch(url, {
         method: 'POST',
@@ -77,7 +71,7 @@ async function createGame(event) {
     connect();
 }
 
-function connect(event) {
+function connect(event) {  // 소켓 연결
     var socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, onConnected, onError);
@@ -90,26 +84,24 @@ function connect(event) {
 }
 
 
-function onConnected() {
+function onConnected() {  // 소켓 연결
     //localstorage에서 아이템 꺼내기
     var gameId = localStorage.getItem('gameId');
     var username = localStorage.getItem('username');
 
 
-    // Subscribe to the Public Topic
+    // 소켓 연결
     stompClient.subscribe('/topic/public/' + gameId, onMessageReceived);
 
-    // Tell your username to the server
+    // 방에 입장
     stompClient.send("/app/chat.addUser",
         {},
         JSON.stringify({sender: username, messageType: 'JOIN', gameId: gameId})
     )
 
-
-    //GET으로 roomName들고 오기
 }
 
-function saveName(event) {
+function saveName(event) {  // 닉네임 설정
     event.preventDefault()
     username = document.querySelector('#name').value.trim();
     localStorage.setItem("username", username);
@@ -117,7 +109,7 @@ function saveName(event) {
     nameInput.placeholder = localStorage.getItem("username");
 }
 
-function exitChatRoom(event) {
+function exitChatRoom(event) {  // 방 나가기
     stompClient.unsubscribe();
     localStorage.removeItem('roomId');
 
@@ -128,13 +120,13 @@ function exitChatRoom(event) {
 }
 
 
-function onError(error) {
+function onError(error) {  // 에러 처리
     connectingElement.textContent = 'Could not connect to WebSocket server. Please refresh this page to try again!';
     connectingElement.style.color = 'red';
 }
 
 
-function sendMessage(event) {
+function sendMessage(event) {  // 메시지 전송 함수
     var messageContent = messageInput.value.trim();
     var gameId = localStorage.getItem('gameId');
 
@@ -159,7 +151,7 @@ function sendMessage(event) {
     event.preventDefault();
 }
 
-function startGame() {
+function startGame() {  // 게임 시작 함수
     startButton.classList.add('hidden');
 
     stompClient.send("/app/chat.startGame",
@@ -175,7 +167,7 @@ function startGame() {
 
 }
 
-function addImageToChatHeader(imageUrl) {
+function addImageToChatHeader(imageUrl) {  // 인물 사진 띄우기
     var chatHeader = document.querySelector('.image');
 
     // 기존에 이미지가 있는지 확인
@@ -202,7 +194,7 @@ function addImageToChatHeader(imageUrl) {
     chatHeader.appendChild(img);
 }
 
-function removeImageFromChatHeader() {
+function removeImageFromChatHeader() {  // 인물 사진 없애기
     var chatHeader = document.querySelector('.image');
 
     var image = chatHeader.querySelector('img');
@@ -211,7 +203,7 @@ function removeImageFromChatHeader() {
     }
 }
 
-function onMessageReceived(payload) {
+function onMessageReceived(payload) { // 메시지 받았을 때 이벤트 처리
     var message = JSON.parse(payload.body);
 
     var messageElement = document.createElement('li');

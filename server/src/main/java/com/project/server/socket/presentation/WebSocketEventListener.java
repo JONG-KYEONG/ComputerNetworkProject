@@ -36,6 +36,7 @@ public class WebSocketEventListener {
     @EventListener
     @Transactional
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) throws InterruptedException {
+        // 소켓 연결 해제 시 처리
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String username = (String) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("username");
         Long userId = (Long) headerAccessor.getSessionAttributes().get("userId");

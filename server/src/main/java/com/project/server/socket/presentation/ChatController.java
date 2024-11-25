@@ -1,7 +1,6 @@
 package com.project.server.socket.presentation;
 
 import com.project.server.game.service.GameService;
-import com.project.server.socket.application.ChatService;
 import com.project.server.socket.dto.*;
 import lombok.AllArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -10,7 +9,6 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -19,7 +17,6 @@ import java.util.List;
 @RestController
 public class ChatController {
     private final SimpMessageSendingOperations messagingTemplate;
-    private final ChatService chatService;
     private final GameService gameService;
 
     @MessageMapping("/chat.sendMessage")
@@ -127,12 +124,12 @@ public class ChatController {
         return null;
     }
 
-    @PostMapping("/api/create/game")
+    @PostMapping("/api/create/game") // 게임방 생성
     public Long createGame(){
         return gameService.createGame();
     }
 
-    @GetMapping("/api/game")
+    @GetMapping("/api/game")  // 게임방 Id 가져오기
     public Long getGame(){
         return gameService.getGame();
     }
